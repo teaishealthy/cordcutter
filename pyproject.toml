@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "cordcutter"
+version = "0.1.0"
+description = "A nextcord extension that implements the circuit breaker design pattern"
+authors = ["teaishealthy <teaishealthy@protonmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ruff = "^0.0.261"
+nextcord = "^2.4.2"
+
+[tool.ruff]
+line-length = 100
+select = ["ALL"]
+ignore = ["D", "ANN101", "ANN401", "TRY003", "EM"]
+
+[tool.black]
+line-length = 100
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
