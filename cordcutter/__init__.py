@@ -15,8 +15,6 @@ from nextcord import (
     SlashApplicationSubcommand,
 )
 
-from nextcord.ext.application_checks import ApplicationMissingPermissions
-
 TClient = TypeVar("TClient", bound="Client")
 
 ApplicationCommand = SlashApplicationSubcommand | BaseApplicationCommand
