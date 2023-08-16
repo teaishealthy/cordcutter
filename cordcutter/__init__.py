@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import timedelta
 from logging import getLogger
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, Type
 
 from nextcord import (
     ApplicationError,
@@ -14,6 +14,8 @@ from nextcord import (
     Interaction,
     SlashApplicationSubcommand,
 )
+
+from nextcord.ext.application_checks import ApplicationMissingPermissions
 
 TClient = TypeVar("TClient", bound="Client")
 
@@ -34,6 +36,7 @@ class Cordcutter(Generic[TClient]):
         *,
         threshold: int = 3,
         reset_after: timedelta | None = None,
+        ignore_exceptions: Iterable[Type[Exception]] | None = None
     ) -> None:
         """Create a new Cordcutter instance.
 
@@ -49,6 +52,8 @@ class Cordcutter(Generic[TClient]):
         self.threshold: int = threshold
         self.reset_after: timedelta = reset_after or timedelta(minutes=1)
         self.errors: defaultdict[ApplicationCommand, int] = defaultdict(int)
+        self.ignore_exceptions: Iterable[Type[Exception]] | None = ignore_exceptions
+
         self._on_tripped_call: Callback | None = None
 
     async def _on_application_command_error(
@@ -63,6 +68,13 @@ class Cordcutter(Generic[TClient]):
         if self.errors.get(interaction.application_command, 0) >= self.threshold:
             return
 
+        if self.ignore_exceptions:
+            for ignore_exception in self.ignore_exceptions:
+                if isinstance(exception, ignore_exception):
+                    return
+                elif ignore_exception.__name__ in str(exception):
+                    return
+
         self.errors[interaction.application_command] += 1
 
         if self.errors[interaction.application_command] >= self.threshold:
@@ -76,7 +88,7 @@ class Cordcutter(Generic[TClient]):
         """
         logger.warning("🔌 Breaker tripped for %s!", command.qualified_name)
 
-        original_callback: Any = command.callback  # pyright: reportUnknownMemberType=false
+        original_callback: Any = command.callback  # pyright: ignore[reportUnknownMemberType=false]
         command.callback = self._on_tripped_call
 
         asyncio.get_event_loop().call_later(
