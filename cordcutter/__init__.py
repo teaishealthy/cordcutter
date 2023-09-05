@@ -67,11 +67,12 @@ class Cordcutter(Generic[TClient]):
             return
 
         if self.ignore_exceptions:
-            for ignore_exception in self.ignore_exceptions:
-        if isinstance(exception, tuple(self.ignore_exceptions)):
-                    return
-                elif ignore_exception.__name__ in str(exception):
-                    return
+            if isinstance(exception, tuple(self.ignore_exceptions)):
+                return
+
+            original_exception: Exception | None = exception.__dict__.get("original")
+            if isinstance(original_exception, tuple(self.ignore_exceptions)):
+                return
 
         self.errors[interaction.application_command] += 1
 
