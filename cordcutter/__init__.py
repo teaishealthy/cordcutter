@@ -67,10 +67,7 @@ class Cordcutter(Generic[TClient]):
             return
 
         if self.ignore_exceptions:
-            if isinstance(exception, tuple(self.ignore_exceptions)):
-                return
-
-            original_exception: Exception | None = exception.__dict__.get("original")
+            original_exception: Exception = getattr(exception, "original", exception)
             if isinstance(original_exception, tuple(self.ignore_exceptions)):
                 return
 
