@@ -68,7 +68,10 @@ class Cordcutter(Generic[TClient]):
 
         if self.ignore_exceptions:
             original_exception: Exception = getattr(exception, "original", exception)
+
             if isinstance(original_exception, tuple(self.ignore_exceptions)):
+                command: str = interaction.application_command.qualified_name
+                logger.warning("🔌 Ignoring exception: %s for command /%s", type(original_exception), command)
                 return
 
         self.errors[interaction.application_command] += 1
