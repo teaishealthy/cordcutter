@@ -44,6 +44,7 @@ class Cordcutter(Generic[TClient]):
             Defaults to 3.
             reset_after (timedelta, optional): After what time the command breaker should reset.
             Defaults to timedelta(minutes=1).
+            ignore_exceptions (Iterable): Exceptions that cordcutter should ignore
         """
         client.on_application_command_error = self._on_application_command_error
 
